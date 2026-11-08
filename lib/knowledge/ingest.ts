@@ -9,7 +9,7 @@ const Section=z.object({id:z.string(),document:z.string(),heading:z.string(),tex
 export const KnowledgeIndex=z.object({schemaVersion:z.literal(1),bibleVersion:z.string(),contentHash:z.string(),clauses:z.array(Clause),sections:z.array(Section),registry:z.string()});
 export type KnowledgeIndex=z.infer<typeof KnowledgeIndex>;
 function sectionsFromHtml(doc:string,html:string){let heading='',text='',current='',sectionNo=0;const out:z.infer<typeof Section>[]=[];let headingTag=false;const flush=()=>{if(heading&&text.trim())out.push({id:`${doc}#${sectionNo++}`,document:doc,heading,text:text.trim()});text=''};const parser=new Parser({onopentag(name){if(/^h[1-6]$/.test(name)){flush();headingTag=true;current=''}else if(name==='tr')text+='\n| ';else if(name==='td'||name==='th')text+=' | ';else if(name==='p'||name==='li')text+='\n'},ontext(value){if(headingTag)current+=value;else text+=value},onclosetag(name){if(/^h[1-6]$/.test(name)){heading=current.trim();headingTag=false}else if(name==='tr')text+=' |\n'}},{decodeEntities:true});parser.write(html);parser.end();flush();return out}
-export async function buildKnowledgeIndex(bibleDir=process.env.BIBLE_DIR||'../../GTO Bible') {
+export async function buildKnowledgeIndex(bibleDir=process.env.BIBLE_DIR||'../GTO Bible') {
  const dir=resolve(bibleDir); const registry=await readFile(join(dir,'BIBLE-INDEX.md'),'utf8');
  const version=registry.match(/\*\*Current Bible\*\*\s*\|\s*`(GTO_Bible_v\d+\.md)`/)?.[1];if(!version)throw new Error('Cannot resolve current Bible from registry');
  const bible=await readFile(join(dir,version),'utf8');const libraryIndex=await readFile(join(dir,'library','INDEX.md'),'utf8');

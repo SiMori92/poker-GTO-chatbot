@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.20.0",
   "scripts": {
-    "predev": "node scripts/predev.mjs",
+    "predev": "node scripts/check-layout.mjs && node scripts/predev.mjs",
     "dev": "next dev",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -13,7 +13,9 @@
     "start": "next start",
     "knowledge:publish": "node --import tsx scripts/publish-knowledge.ts",
     "knowledge:activate": "node --import tsx scripts/activate-knowledge.ts",
-    "knowledge:init": "node --import tsx scripts/init-knowledge.ts"
+    "knowledge:init": "node --import tsx scripts/init-knowledge.ts",
+    "check:layout": "node scripts/check-layout.mjs",
+    "prebuild": "node scripts/check-layout.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",

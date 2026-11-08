@@ -12,11 +12,11 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-By default `BIBLE_DIR=../../GTO Bible`, relative to this directory. Point it to the actual local folder containing `BIBLE-INDEX.md`; it and its library are read-only. Without an Anthropic key the local tools remain available. The app creates local temporary data under `data/`. Do not commit `.env.local`, `data/`, hand histories or your Bible source files to a public repository.
+By default `BIBLE_DIR=../GTO Bible`, relative to this directory. Point it to the actual local folder containing `BIBLE-INDEX.md`; it and its library are read-only. Without an Anthropic key the local tools remain available. The app creates local temporary data under `data/`. Do not commit `.env.local`, `data/`, hand histories or your Bible source files to a public repository.
 
 ## Vercel setup
 
-1. Import the GitHub repository into Vercel. Set the project **Root Directory** to `app` and select Next.js. Use Node 22 or newer. The build command is `pnpm build`.
+1. Import the GitHub repository into Vercel. Set the project **Root Directory** to the repository root (`.`) and select Next.js. Use Node 22 or newer. The build command is `pnpm build`.
 2. Create or connect a Neon PostgreSQL database through the Vercel Marketplace, or add its connection string manually as the server-only `DATABASE_URL` environment variable. Use separate databases or branches for preview and production. Do not expose the connection string to the browser or commit it.
 3. Set `APP_PASSWORD` for each deployed environment to an independently generated random password of at least 8 characters. For example, generate one with `openssl rand -base64 36`. Save it in your password manager and Vercel environment settings; never commit it. The login username is `trainer`. Vercel deployments fail closed with HTTP 503 if the password is missing or too short. Rotate it by changing the environment variable and redeploying.
 4. Set `NEXT_TELEMETRY_DISABLED=1`. `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` are not currently used for model calls because that feature is unfinished. If you add the key later, it belongs in Vercel server environment variables, never in client code.
@@ -31,7 +31,7 @@ Do this from your computer, not a hosted route. You need the Neon `DATABASE_URL`
 
 1. Run `pnpm knowledge:init` once against the target Neon database to create the two knowledge tables. This command does not delete existing data.
 2. Complete the existing Bible amendment and approval process locally. Update `BIBLE-INDEX.md` to name the current version and register current capture-derived library documents in `library/INDEX.md`. Do not edit released Bible versions or use hand records as clause evidence.
-3. From `app`, run `pnpm test` and review changes to the Bible and library. Update the ingestion tests if the ratified Bible version or coverage intentionally changes; tests currently assert the v8 fixture. Passing tests checks structure, not the poker accuracy of a new clause.
+3. From the repository root, run `pnpm test` and review changes to the Bible and library. Update the ingestion tests if the ratified Bible version or coverage intentionally changes; tests currently assert the v8 fixture. Passing tests checks structure, not the poker accuracy of a new clause.
 4. Run `pnpm knowledge:publish`. The command reads the local Bible and registered `.docx` files, validates and builds an index, stores the release by content hash, switches the active version in a PostgreSQL transaction, and reads it back. Keep both the printed **previous release** and newly activated release hashes in your change record.
 5. Open the hosted app's **Knowledge** page after authenticating and check the Bible version, clause count, registered documents and boundaries. Then check the relevant node coverage in code and tests before relying on any new evidence. The publisher indexes the Bible and text/table sections; it does not upload the original `.docx` files or the source folder.
 
@@ -53,3 +53,7 @@ pnpm build
 ```
 
 The knowledge tests use the local Bible and real hand-history files outside this repository. They require those fixtures at the paths used in `tests/`; a standalone GitHub clone or Vercel build does not contain them. Tests use an in-memory knowledge-store implementation and do not require Neon credentials; a real Neon initialization, publication, rollback and deployed authentication check must be verified in your own projects. No screenshot or file storage has been implemented; choose a private object store when that feature is built.
+
+## Repository layout
+
+The Next.js project manifest and pnpm lockfile belong at the repository root. The `app/` directory contains Next.js routes, not a second project. Run `pnpm check:layout` to validate this contract or `node scripts/check-layout.mjs --contract` to display it. Update this description and the checker together when changing the layout.
