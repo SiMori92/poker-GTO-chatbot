@@ -1,7 +1,8 @@
 node_modules/
 .next/
 data/
-.env.local
+.env*
+!.env.example
+.vercel/
 coverage/
-
 *.tsbuildinfo

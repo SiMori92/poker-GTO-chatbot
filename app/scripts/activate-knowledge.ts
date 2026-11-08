@@ -1,0 +1,3 @@
+import {activateCloudRelease,readCloudIndex} from '../lib/cloud/knowledge';
+async function main(){try{process.loadEnvFile('.env.local')}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error}if(!process.env.DATABASE_URL)throw new Error('Set DATABASE_URL for Neon.');const release=await activateCloudRelease(process.argv[2]??'');const active=await readCloudIndex();if(active.bibleVersion!==release.bibleVersion)throw new Error('Active version verification failed.');console.log(`Activated ${release.bibleVersion}; release ${release.sha256}.`)}
+main().catch(error=>{console.error('Activation failed:',error instanceof Error?error.message:error);process.exitCode=1});
