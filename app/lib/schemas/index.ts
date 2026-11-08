@@ -1,0 +1,13 @@
+import {z} from 'zod';
+import {HandRecord,Street} from './hand';
+export {HandRecord,Street} from './hand';
+export const Spot=z.object({street:Street,stake:z.string().nullable(),stackBb:z.number().positive().nullable(),sizeTree:z.string().nullable(),solutionFamily:z.string().nullable(),nodeClass:z.string().nullable(),heroPosition:z.enum(['UTG','HJ','CO','BTN','SB','BB']).optional(),openerPosition:z.enum(['UTG','HJ','CO','BTN','SB','BB']).optional()});
+export const Boundary=z.object({street:z.array(Street),stake:z.array(z.string()),stackBb:z.array(z.number()),sizeTree:z.array(z.string()),solutionFamily:z.array(z.string())});
+export const Provenance=z.discriminatedUnion('kind',[z.object({kind:z.literal('CALC')}),z.object({kind:z.literal('BIBLE'),clause:z.string()}),z.object({kind:z.literal('SOLVER'),doc:z.string(),node:z.string(),evCaptured:z.boolean()}),z.object({kind:z.literal('HEURISTIC'),note:z.string()})]);
+export const TaggedValue=z.object({value:z.number().finite(),provenance:Provenance});
+export const Fact=TaggedValue.extend({id:z.string().min(1),label:z.string(),unit:z.string().optional()});
+export const KnowledgeChunk=z.object({schemaVersion:z.literal(1),id:z.string(),source:z.string(),section:z.string(),text:z.string(),boundary:Boundary,numeric:z.boolean(),nodeClass:z.string().nullable()});
+export const AnalysisOutput=z.object({verdict:z.enum(['Good','Marginal','Mistake','Not covered']),sentence:z.string(),factIds:z.array(z.string()),chunkIds:z.array(z.string()),why:z.array(z.string()),wizardNodes:z.array(z.string())});
+export const Run=z.object({schemaVersion:z.literal(1),id:z.string(),hand:HandRecord,facts:z.array(Fact),chunks:z.array(z.string()),analysis:AnalysisOutput,bibleVersion:z.string(),model:z.string(),createdAt:z.string()});
+export const Batch=z.object({schemaVersion:z.literal(1),id:z.string(),items:z.array(z.object({id:z.string(),status:z.enum(['queued','extracting','needs-review','analysing','done','failed'])}))});
+export type Spot=z.infer<typeof Spot>; export type Boundary=z.infer<typeof Boundary>; export type TaggedValue=z.infer<typeof TaggedValue>; export type Fact=z.infer<typeof Fact>; export type KnowledgeChunk=z.infer<typeof KnowledgeChunk>; export type AnalysisOutput=z.infer<typeof AnalysisOutput>; export type Run=z.infer<typeof Run>; export type Batch=z.infer<typeof Batch>;
